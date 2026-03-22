@@ -8,7 +8,7 @@
 		/>
 		<title>Scramjet</title>
 
-		<link rel="shortcut icon" content="favicon.webp" />
+		<link rel="shortcut icon" content="favicon.ico" />
 		<script src="https://unpkg.com/highlight.run"></script>
 		<script
 			crossorigin="anonymous"
@@ -60,7 +60,7 @@
 						networkRecording: { enabled: true, recordHeadersAndBody: true },
 						contextFriendlyName: (context) => {
 							const username = document.getElementById("username");
-							const address = document.getElementById("uv-address");
+							const address = document.getElementById("sj-address");
 							return username.value == "" ? undefined : username.value;
 						},
 					}),

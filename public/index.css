@@ -1,7 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap");
-
 body {
-	font-family: "Roboto", Arial, Helvetica, sans-serif;
+	font-family: "Comic Sans MS", cursive;
 	margin: 0;
 	background: #111;
 	display: flex;
@@ -9,19 +7,21 @@ body {
 	min-height: 100vh;
 }
 
+.fa-magnifying-glass {
+	color: white;
+}
+
 .flex-center {
 	display: flex;
 	justify-content: center;
+	flex-direction: column;
+	align-items: center;
 }
 
 .header-center {
 	align-items: center;
 	flex-direction: column;
-	margin-top: 10%;
-}
-
-.left-margin {
-	margin: 0px 16px;
+	margin-top: 3%;
 }
 
 #sj-frame {
@@ -45,6 +45,26 @@ body {
 	font-family: "Courier New", Courier, monospace;
 }
 
+#sj-register-sw {
+	color: white;
+	background: #555555;
+	cursor: pointer;
+	outline: none;
+	border: none;
+	border-radius: 6px;
+	padding: 16px 20px;
+	line-height: 16px;
+	display: none;
+}
+
+#sj-register-sw:active {
+	background: #333333;
+}
+
+#sj-register-sw.show {
+	display: block;
+}
+
 .logo {
 	height: 25vh;
 }
@@ -59,7 +79,7 @@ body {
 }
 
 footer {
-	margin: 0 16px;
+	margin: 0 5vw;
 	margin-top: auto;
 	display: flex;
 	flex-direction: column;
@@ -94,9 +114,11 @@ footer a:hover {
 .desc p {
 	width: 560px;
 	color: rgba(253, 253, 253, 0.514);
+	text-align: center;
 }
 
-#sj-address {
+#sj-address,
+#username {
 	background: none;
 	font-family: inherit;
 	padding: 0px 17px;
@@ -112,7 +134,8 @@ footer a:hover {
 	transition: border-radius 0.1s;
 }
 
-#sj-address:focus {
+#sj-address:focus,
+#username:focus {
 	border: 1px solid rgba(253, 253, 253, 0.514);
 	border-radius: 6px;
 }

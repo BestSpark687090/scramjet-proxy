@@ -9,10 +9,69 @@
 		<title>Scramjet</title>
 
 		<link rel="shortcut icon" content="favicon.webp" />
-	
+		<script src="https://unpkg.com/highlight.run"></script>
+		<script
+			crossorigin="anonymous"
+			src="https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk"
+		></script>
+		<script
+			crossorigin="anonymous"
+			src="https://cdn.jsdelivr.net/npm/@launchdarkly/observability"
+		></script>
+		<script
+			crossorigin="anonymous"
+			src="https://cdn.jsdelivr.net/npm/@launchdarkly/session-replay"
+		></script>
+		<script>
+			let host = location.host;
+			let ver = host.includes("csb")
+				? "dev-csb"
+				: host.includes("vercel")
+					? "prod-vercel"
+					: "prod-render";
+			H.init("132006", {
+				// Get your project ID from https://app.highlight.io/setup
+				environment: ver,
+				version: ver,
+				networkRecording: {
+					//privacySetting: "none", // very sorry, but i wanna test
+					enabled: true,
+					//recordHeadersAndBody: true,
+					urlBlocklist: [
+						// insert full or partial urls that you don't want to record here
+						// Out of the box, Highlight will not record these URLs (they can be safely removed):
+						"https://www.googleapis.com/identitytoolkit",
+						"https://securetoken.googleapis.com",
+					],
+				},
+			});
+			// import { LDClient } from "https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk";
+			// import Observability, { LDObserve } from "@launchdarkly/observability";
+			// import SessionReplay, { LDRecord } from "@launchdarkly/session-replay";
+			// import { createClient } from "https://cdn.jsdelivr.net/npm/@launchdarkly/js-client-sdk/dist/index.min.js";
+			const context = {
+				kind: "user",
+				key: ver + "scramJet",
+			};
+			const client = LDClient.initialize("69920bd42aae3b09e8e14fed", context, {
+				plugins: [
+					new Observability.default({
+						tracingOrigins: true,
+						networkRecording: { enabled: true, recordHeadersAndBody: true },
+						contextFriendlyName: (context) => {
+							const username = document.getElementById("username");
+							const address = document.getElementById("uv-address");
+							return username.value == "" ? undefined : username.value;
+						},
+					}),
+					new SessionReplay.default({ privacySetting: "none" }),
+				],
+			});
+			console.log(client);
+		</script>
 		<script src="/scram/scramjet.all.js"></script>
 		<script src="/baremux/index.js"></script>
-		
+
 		<link rel="stylesheet" href="index.css" />
 		<script src="register-sw.js" defer></script>
 		<script src="search.js" defer></script>
@@ -35,11 +94,21 @@
 		<form id="sj-form" class="flex-center">
 			<input
 				id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
+				value="https://www.duckduckgo.com/search?q=%s"
 				type="hidden"
 			/>
+			<input
+				id="username"
+				type="text"
+				placeholder="Enter Username... (required!)"
+				aria-label="Used for tracking purposes. Sorry! Want to be safe."
+			/>
 			<input id="sj-address" type="text" placeholder="Search the web freely" />
+			<button id="sj-address" type="submit">Open Here</button>
 		</form>
+		<div class="flex-center desc left-margin">
+			<button id="sj-address" onclick="newTab()">Open in New Tab</button>
+		</div>
 		<div class="desc left-margin">
 			<p id="sj-error"></p>
 			<pre id="sj-error-code"></pre>

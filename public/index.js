@@ -29,7 +29,7 @@ const scramjet = new ScramjetController({
 		all: "/scram/scramjet.all.js",
 		sync: "/scram/scramjet.sync.js",
 	},
-	prefix: "/sjp/scramjet/"
+	prefix: "/scramjet/",
 });
 
 scramjet.init();

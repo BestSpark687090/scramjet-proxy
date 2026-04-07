@@ -15,6 +15,7 @@ function isBlocked(host, fullUrl) {
 
 async function handleRequest(event) {
 	await scramjet.loadConfig();
+	scramjet.config.prefix="/scramjet/";
 	const url = event.request.url;
 	const prefix = "/scramjet/";
 

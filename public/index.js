@@ -31,9 +31,12 @@ const scramjet = new ScramjetController({
 	},
 	prefix: "/scramjet/",
 });
-
-scramjet.init();
-
+async function start(){
+	try{
+await scramjet.init();
+}catch(e){console.log(e)}
+}
+start();
 document.querySelectorAll("*").forEach(function (e) {
 	e.addEventListener("keydown", function (ev) {
 		if (ev.ctrlKey && ev.shiftKey && ev.code == "KeyZ") {

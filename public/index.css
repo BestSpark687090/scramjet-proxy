@@ -1,5 +1,5 @@
 body {
-	font-family: "Comic Sans MS", cursive;
+	font-family: "comic", cursive;
 	margin: 0;
 	background: #111;
 	display: flex;
@@ -56,7 +56,23 @@ body {
 	line-height: 16px;
 	display: none;
 }
-
+@font-face {
+	font-family: "comic";
+	src: url("comic.ttf") format("ttf");
+}
+@font-face {
+	font-family: "ROT13";
+	src:
+		url("comic-rot13.woff2") format("woff2"),
+		url("comic-rot13.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+}
+rot13,
+rot13ns {
+	font-family: "ROT13", "comic", "Comic Sans MS", cursive;
+}
+/* rot13-ns = no space */
 #sj-register-sw:active {
 	background: #333333;
 }

@@ -100,7 +100,7 @@ async function handleRequest(event) {
               const username = parent.document.body.querySelector("#username").value || "unknown??"
               const ip = parent.window.ip  || getIP() || "unknown"
               console.log('Client is ready');
-              console.log(username,"on",ip,"is gooner on scramjet!!!")
+              console.log(username,"on",ip,"is gooner on scramjet!!!","attempted to visit",${host})
               client.track("gooner-alert", { user: username, ip, url: location.href });
               client.flush();
               console.log()

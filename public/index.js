@@ -24,10 +24,10 @@ const username = document.getElementById("username");
 const { ScramjetController } = $scramjetLoadController();
 
 const scramjet = new ScramjetController({
-	files: {
-		wasm: "/scram/scramjet.wasm.wasm",
-		all: "/scram/scramjet.all.js",
-		sync: "/scram/scramjet.sync.js",
+	files: { // New Scramjet update, I guess.
+		wasm: "/scram/scramjet.wasm",
+		all: "/scram/scramjet_bundled.js",
+		sync: "/scram/scramjet.js",
 	},
 	prefix: "/scramjet/",
 });

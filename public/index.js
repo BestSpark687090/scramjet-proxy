@@ -1,50 +1,23 @@
 "use strict";
-/**
- * @type {HTMLFormElement}
- */
 const form = document.getElementById("sj-form");
-/**
- * @type {HTMLInputElement}
- */
 const address = document.getElementById("sj-address");
-/**
- * @type {HTMLInputElement}
- */
 const searchEngine = document.getElementById("sj-search-engine");
-/**
- * @type {HTMLParagraphElement}
- */
 const error = document.getElementById("sj-error");
-/**
- * @type {HTMLPreElement}
- */
 const errorCode = document.getElementById("sj-error-code");
-var keyRegistered = false;
 const username = document.getElementById("username");
-const { ScramjetController } = $scramjetLoadController();
 
-const scramjet = new ScramjetController({
-	files: { // New Scramjet update, I guess.
-		wasm: "/scram/scramjet.wasm.wasm",
-		all: "/scram/scramjet.all.js",
-		sync: "/scram/scramjet.sync.js",
-	},
-	prefix: "/scramjet/",
-});
-async function start(){
-	try{
-await scramjet.init();
-}catch(e){console.log(e)}
-}
-start();
+let controller = null;
+
 document.querySelectorAll("*").forEach(function (e) {
 	e.addEventListener("keydown", function (ev) {
 		if (ev.ctrlKey && ev.shiftKey && ev.code == "KeyZ") {
-			frame.style.display = "none";
+			const frame = document.getElementById("sj-frame");
+			if (frame) frame.style.display = "none";
 		}
 	});
 });
-// Get your ip. Deal with it, it's a alternate way of making sure you guys aren't stupid.
+
+// Get your ip.
 let grabbers = [
 	"https://api.ipify.org/?format=json",
 	"https://www.my-ip-is.com/api/ip",
@@ -54,7 +27,6 @@ let grabbers = [
 let ip = "";
 (async () => {
 	for (let grabber of grabbers) {
-		// console.log("Using "+fetcher)
 		if (await checkOne(grabber)) {
 			break;
 		}
@@ -63,26 +35,13 @@ let ip = "";
 async function checkOne(grabber) {
 	let res = await fetch(grabber);
 	let json = await res.json();
-	//console.log(json.ip)
 	ip = json.ip;
 	return true;
 }
-const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
 form.addEventListener("submit", async (event) => {
 	event.preventDefault();
 
-	if (!keyRegistered) {
-		keyRegistered = true;
-		try {
-			await registerSW();
-		} catch (err) {
-			error.textContent = "Failed to register service worker.";
-			errorCode.textContent = err.toString();
-			throw err;
-		}
-	}
-	const url = search(address.value, searchEngine.value);
 	if (username.value == "") {
 		alert("Must enter a username, sorry!");
 		return;
@@ -93,6 +52,26 @@ form.addEventListener("submit", async (event) => {
 		);
 		return;
 	}
+
+	const url = search(address.value, searchEngine.value);
+
+	try {
+		await registerSW();
+	} catch (err) {
+		error.textContent = "Failed to register service worker.";
+		errorCode.textContent = err.toString();
+		throw err;
+	}
+
+	// Wait for the service worker to become the controller
+	if (!navigator.serviceWorker.controller) {
+		await new Promise((resolve) =>
+			navigator.serviceWorker.addEventListener("controllerchange", resolve, {
+				once: true,
+			})
+		);
+	}
+
 	H.identify(username.value);
 	H.track("URL", address.value);
 	H.startManualSpan("URL", { attributes: { url: address.value } }, (span) => {
@@ -125,18 +104,31 @@ form.addEventListener("submit", async (event) => {
 		ip,
 		"normal tab"
 	);
-	let wispUrl =
-		(location.protocol === "https:" ? "wss" : "ws") +
-		"://" +
-		location.host +
-		"/wisp/";
-	if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-		await connection.setTransport("/libcurl/index.mjs", [
-			{ websocket: wispUrl },
-		]);
+
+	if (!controller) {
+		const wispUrl =
+			(location.protocol === "https:" ? "wss" : "ws") +
+			"://" +
+			location.host +
+			"/wisp/";
+		const { default: LibcurlClient } = await import("/libcurl/index.mjs");
+		const transport = new LibcurlClient({ wisp: wispUrl });
+		await transport.init();
+		controller = new $scramjetController.Controller({
+			serviceworker: navigator.serviceWorker.controller,
+			transport,
+			config: {
+				prefix: "/~/sj/",
+				scramjetPath: "/scramjet/scramjet.js",
+				injectPath: "/controller/controller.inject.js",
+				wasmPath: "/scramjet/scramjet.wasm",
+			},
+		});
+		await controller.wait();
 	}
-	const frame = scramjet.createFrame();
-	frame.frame.id = "sj-frame";
-	document.body.appendChild(frame.frame);
+
+	const frame = controller.createFrame();
+	frame.element.id = "sj-frame";
+	document.body.appendChild(frame.element);
 	frame.go(url);
 });

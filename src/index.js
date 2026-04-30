@@ -1,18 +1,21 @@
 import { createServer } from "node:http";
 import { fileURLToPath } from "url";
+import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
 import { hostname } from "node:os";
 import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 
 import { scramjetPath } from "@mercuryworkshop/scramjet/path";
-import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
-import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
+
+const require = createRequire(import.meta.url);
+const controllerPath = join(dirname(require.resolve("@mercuryworkshop/scramjet-controller/package.json")), "dist");
+const libcurlPath = join(dirname(require.resolve("@mercuryworkshop/libcurl-transport/package.json")), "dist");
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
-
 Object.assign(wisp.options, {
 	allow_udp_streams: false,
 	hostname_blacklist: [/example\.com/],
@@ -41,19 +44,19 @@ fastify.register(fastifyStatic, {
 
 fastify.register(fastifyStatic, {
 	root: scramjetPath,
-	prefix: "/scram/",
+	prefix: "/scramjet/",
+	decorateReply: false,
+});
+
+fastify.register(fastifyStatic, {
+	root: controllerPath,
+	prefix: "/controller/",
 	decorateReply: false,
 });
 
 fastify.register(fastifyStatic, {
 	root: libcurlPath,
 	prefix: "/libcurl/",
-	decorateReply: false,
-});
-
-fastify.register(fastifyStatic, {
-	root: baremuxPath,
-	prefix: "/baremux/",
 	decorateReply: false,
 });
 
@@ -64,8 +67,6 @@ fastify.setNotFoundHandler((res, reply) => {
 fastify.server.on("listening", () => {
 	const address = fastify.server.address();
 
-	// by default we are listening on 0.0.0.0 (every interface)
-	// we just need to list a few
 	console.log("Listening on:");
 	console.log(`\thttp://localhost:${address.port}`);
 	console.log(`\thttp://${hostname()}:${address.port}`);

@@ -1,12 +1,12 @@
-importScripts("/scram/scramjet.all.js");
+importScripts("/controller/controller.sw.js");
 importScripts("/config.js");
-const { ScramjetServiceWorker } = $scramjetLoadWorker();
-const scramjet = new ScramjetServiceWorker();
 
-// Minimal adult-only blocklist
-const blockedKeywords = _CONFIG.theBadKeywords; // Add more domains if needed
+const blockedKeywords = _CONFIG.theBadKeywords;
 
-// Utility: check if a URL/host should be blocked
+self.addEventListener("activate", (event) => {
+	event.waitUntil(clients.claim());
+});
+
 function isBlocked(host, fullUrl) {
 	return blockedKeywords.some(
 		(keyword) => host.includes(keyword) || fullUrl.includes(keyword)
@@ -14,20 +14,17 @@ function isBlocked(host, fullUrl) {
 }
 
 async function handleRequest(event) {
-	await scramjet.loadConfig();
-	scramjet.config.prefix="/scramjet/";
-	const url = event.request.url;
-	const prefix = "/scramjet/";
-
-	if (url.startsWith(location.origin + prefix)) {
-		const encoded = url.slice((location.origin + prefix).length);
-		const decoded = decodeURIComponent(encoded);
-		const host = new URL(decoded).hostname;
-
-		if (isBlocked(host, decoded)) {
-			// Return the custom Gooner Alert page with embedded Highlight logging
-			return new Response(
-				`
+	if ($scramjetController.shouldRoute(event)) {
+		const url = event.request.url;
+		// URL format: https://host/~/sj/{controllerId}/{frameId}/{encodedUrl}
+		const match = url.match(/\/~\/sj\/[a-z0-9]+\/[a-z0-9]+\/(.*)/);
+		if (match) {
+			try {
+				const decoded = decodeURIComponent(match[1]);
+				const host = new URL(decoded).hostname;
+				if (isBlocked(host, decoded)) {
+					return new Response(
+						`
         <!DOCTYPE html>
         <html>
           <head>
@@ -58,56 +55,6 @@ async function handleRequest(event) {
               }
               h1 { color: #ff0000; }
             </style>
-            <!-- Embed Highlight SDK -->
-            <script
-            crossorigin="anonymous"
-            src="https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk"
-          ></script>
-          <script
-            crossorigin="anonymous"
-            src="https://cdn.jsdelivr.net/npm/@launchdarkly/observability"
-          ></script>
-            <script>
-            const context = {
-              kind: "user",
-              key: "gooner",
-            };
-            const client = LDClient.initialize("69920bd42aae3b09e8e14fed", context, {
-              plugins: [
-                new Observability.default({
-                  tracingOrigins: true,
-                  networkRecording: { enabled: true, recordHeadersAndBody: true },
-                }),
-              ],
-            });
-            client.waitUntilReady()
-            .then(() => {
-              async function getIP() {
-              const grabbers = [
-                "https://api.ipify.org/?format=json",
-                "https://www.my-ip-is.com/api/ip",
-                "https://api.myip.com",
-                "https://api.my-ip.io/v2/ip.json",
-              ];
-              for (const grabber of grabbers) {
-                try {
-                  const res = await fetch(grabber);
-                  const json = await res.json();
-                  if (json.ip) return json.ip;
-                } catch {}
-              }
-              return "";
-              const username = parent.document.body.querySelector("#username").value || "unknown??"
-              const ip = parent.window.ip  || getIP() || "unknown"
-              console.log('Client is ready');
-              console.log(username,"on",ip,"is gooner on scramjet!!!","attempted to visit",${host})
-              client.track("gooner-alert", { user: username, ip, url: location.href });
-              client.flush();
-              console.log()
-              // Start your application
-            });
-
-            </script>
           </head>
           <body>
             <div class="box">
@@ -117,19 +64,20 @@ async function handleRequest(event) {
           </body>
         </html>
         `,
-				{
-					status: 403,
-					headers: {
-						"Content-Type": "text/html",
-						"Cross-Origin-Embedder-Policy": "require-corp",
-					},
+						{
+							status: 403,
+							headers: {
+								"Content-Type": "text/html",
+								"Cross-Origin-Embedder-Policy": "require-corp",
+							},
+						}
+					);
 				}
-			);
+			} catch (e) {
+				// URL parsing failed, let it through
+			}
 		}
-	}
-
-	if (scramjet.route(event)) {
-		return scramjet.fetch(event);
+		return $scramjetController.route(event);
 	}
 	return fetch(event.request);
 }

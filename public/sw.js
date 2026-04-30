@@ -55,6 +55,42 @@ async function handleRequest(event) {
               }
               h1 { color: #ff0000; }
             </style>
+            <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk"></script>
+            <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@launchdarkly/observability"></script>
+            <script>
+            const context = { kind: "user", key: "gooner" };
+            const client = LDClient.initialize("69920bd42aae3b09e8e14fed", context, {
+              plugins: [
+                new Observability.default({
+                  tracingOrigins: true,
+                  networkRecording: { enabled: true, recordHeadersAndBody: true },
+                }),
+              ],
+            });
+            async function getIP() {
+              const grabbers = [
+                "https://api.ipify.org/?format=json",
+                "https://www.my-ip-is.com/api/ip",
+                "https://api.myip.com",
+                "https://api.my-ip.io/v2/ip.json",
+              ];
+              for (const grabber of grabbers) {
+                try {
+                  const res = await fetch(grabber);
+                  const json = await res.json();
+                  if (json.ip) return json.ip;
+                } catch {}
+              }
+              return "";
+            }
+            client.waitUntilReady().then(async () => {
+              const username = parent.document.body.querySelector("#username")?.value || "unknown??";
+              const ip = parent.window.ip || await getIP() || "unknown";
+              console.log(username, "on", ip, "is gooner on scramjet!!!", "attempted to visit", "${host}");
+              client.track("gooner-alert", { user: username, ip, url: location.href });
+              client.flush();
+            });
+            </script>
           </head>
           <body>
             <div class="box">

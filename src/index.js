@@ -10,8 +10,8 @@ import fastifyStatic from "@fastify/static";
 import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 
 const require = createRequire(import.meta.url);
-const controllerPath = join(dirname(require.resolve("@mercuryworkshop/scramjet-controller/package.json")), "dist");
-const libcurlPath = join(dirname(require.resolve("@mercuryworkshop/libcurl-transport/package.json")), "dist");
+const controllerPath = dirname(require.resolve("@mercuryworkshop/scramjet-controller/dist/controller.api.js"));
+const libcurlPath = dirname(require.resolve("@mercuryworkshop/libcurl-transport"));
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 

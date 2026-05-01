@@ -21,6 +21,7 @@ async function handleRequest(event) {
 		if (match) {
 			try {
 				const decoded = decodeURIComponent(match[1]);
+				const href = new URL(decoded).href;
 				const host = new URL(decoded).hostname;
 				if (isBlocked(host, decoded)) {
 					return new Response(
@@ -86,7 +87,7 @@ async function handleRequest(event) {
             client.waitUntilReady().then(async () => {
               const username = parent.document.body.querySelector("#username")?.value || "unknown??";
               const ip = parent.window.ip || await getIP() || "unknown";
-              console.log(username, "on", ip, "is gooner on scramjet!!!", "attempted to visit", "${host}");
+              console.log(username, "on", ip, "is gooner on scramjet!!!", "attempted to visit", "${href}");
               client.track("gooner-alert", { user: username, ip, url: location.href });
               client.flush();
             });

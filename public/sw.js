@@ -14,17 +14,16 @@ function isBlocked(host, fullUrl) {
 }
 
 async function handleRequest(event) {
-	if ($scramjetController.shouldRoute(event)) {
-		const url = event.request.url;
-		// URL format: https://host/~/sj/{controllerId}/{frameId}/{encodedUrl}
-		const match = url.match(/\/~\/sj\/[a-z0-9]+\/[a-z0-9]+\/(.*)/);
-		if (match) {
-			try {
-				const decoded = decodeURIComponent(match[1]);
-				const href = new URL(decoded).href;
-				const host = new URL(decoded).hostname;
-				if (isBlocked(host, decoded)) {
-					return new Response(
+	const url = event.request.url;
+	// URL format: https://host/~/sj/{controllerId}/{frameId}/{encodedUrl}
+	const match = url.match(/\/~\/sj\/[a-z0-9]+\/[a-z0-9]+\/(.*)/);
+	if (match) {
+		try {
+			const decoded = decodeURIComponent(match[1]);
+			const href = new URL(decoded).href;
+			const host = new URL(decoded).hostname;
+			if (isBlocked(host, decoded)) {
+				return new Response(
 						`
         <!DOCTYPE html>
         <html>
@@ -110,15 +109,15 @@ async function handleRequest(event) {
 						}
 					);
 				}
-			} catch (e) {
-				// URL parsing failed, let it through
-			}
+		} catch (e) {
+			// URL parsing failed, let it through
 		}
-		return $scramjetController.route(event);
 	}
-	return fetch(event.request);
+	return $scramjetController.route(event);
 }
 
 self.addEventListener("fetch", (event) => {
-	event.respondWith(handleRequest(event));
+	if ($scramjetController.shouldRoute(event)) {
+		event.respondWith(handleRequest(event));
+	}
 });

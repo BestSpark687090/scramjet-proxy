@@ -2,17 +2,20 @@
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
+const frameWrapper = document.getElementById("sj-frame-wrapper");
+const frameElement = document.getElementById("sj-frame");
+const frameUrl = document.getElementById("sj-frame-url");
 const error = document.getElementById("sj-error");
 const errorCode = document.getElementById("sj-error-code");
 const username = document.getElementById("username");
 
 let controller = null;
+let frame = null;
 
 document.querySelectorAll("*").forEach(function (e) {
 	e.addEventListener("keydown", function (ev) {
 		if (ev.ctrlKey && ev.shiftKey && ev.code == "KeyZ") {
-			const frame = document.getElementById("sj-frame");
-			if (frame) frame.style.display = "none";
+			if (frameWrapper) frameWrapper.style.display = "none";
 		}
 	});
 });
@@ -37,6 +40,58 @@ async function checkOne(grabber) {
 	let json = await res.json();
 	ip = json.ip;
 	return true;
+}
+
+function showErrorScreen(msg, details) {
+	frameWrapper.style.display = "none";
+	error.textContent = msg;
+	errorCode.textContent = details;
+}
+
+async function initController() {
+	const wispUrl =
+		(location.protocol === "https:" ? "wss" : "ws") +
+		"://" +
+		location.host +
+		"/wisp/";
+	const { default: LibcurlClient } = await import("/libcurl/index.mjs");
+	const transport = new LibcurlClient({ wisp: wispUrl });
+	await transport.init();
+	controller = new $scramjetController.Controller({
+		serviceworker: navigator.serviceWorker.controller,
+		transport,
+		config: {
+			prefix: "/~/sj/",
+			scramjetPath: "/scramjet/scramjet.js",
+			injectPath: "/controller/controller.inject.js",
+			wasmPath: "/scramjet/scramjet.wasm",
+		},
+	});
+	await controller.wait();
+
+	const cachePlugin = new $scramjetUtils.HttpCachePlugin();
+	const urlWatcher = new $scramjetUtils.UrlWatcherPlugin((url) => {
+		frameUrl.textContent = url;
+	});
+	const catchEscapedLinks = new $scramjetUtils.CatchEscapedLinksPlugin(
+		(url) =>
+			new URL(`${location.pathname}?goto=${encodeURIComponent(url.href)}`, location.origin)
+	);
+
+	frame = controller.createFrame(frameElement, {
+		plugins: [cachePlugin, urlWatcher, catchEscapedLinks],
+	});
+}
+
+async function navigate(url) {
+	if (!url.startsWith("http")) {
+		url = `https://${url}`;
+	}
+	if (!controller) {
+		await initController();
+	}
+	await frame.go(url);
+	frameWrapper.style.display = "flex";
 }
 
 form.addEventListener("submit", async (event) => {
@@ -105,30 +160,27 @@ form.addEventListener("submit", async (event) => {
 		"normal tab"
 	);
 
-	if (!controller) {
-		const wispUrl =
-			(location.protocol === "https:" ? "wss" : "ws") +
-			"://" +
-			location.host +
-			"/wisp/";
-		const { default: LibcurlClient } = await import("/libcurl/index.mjs");
-		const transport = new LibcurlClient({ wisp: wispUrl });
-		await transport.init();
-		controller = new $scramjetController.Controller({
-			serviceworker: navigator.serviceWorker.controller,
-			transport,
-			config: {
-				prefix: "/~/sj/",
-				scramjetPath: "/scramjet/scramjet.js",
-				injectPath: "/controller/controller.inject.js",
-				wasmPath: "/scramjet/scramjet.wasm",
-			},
-		});
-		await controller.wait();
+	try {
+		await navigate(url);
+	} catch (err) {
+		showErrorScreen(err.message, err.stack);
 	}
-
-	const frame = controller.createFrame();
-	frame.element.id = "sj-frame";
-	document.body.appendChild(frame.element);
-	frame.go(url);
 });
+
+const goto = new URL(location.href).searchParams.get("goto");
+if (goto) {
+	history.replaceState(null, "", location.pathname);
+	address.value = goto;
+	registerSW()
+		.then(() => {
+			if (!navigator.serviceWorker.controller) {
+				return new Promise((resolve) =>
+					navigator.serviceWorker.addEventListener("controllerchange", resolve, {
+						once: true,
+					})
+				);
+			}
+		})
+		.then(() => navigate(goto))
+		.catch((err) => showErrorScreen(err.message, err.stack));
+}

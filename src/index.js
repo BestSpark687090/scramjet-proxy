@@ -12,6 +12,7 @@ import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 const require = createRequire(import.meta.url);
 const controllerPath = dirname(require.resolve("@mercuryworkshop/scramjet-controller/dist/controller.api.js"));
 const libcurlPath = dirname(require.resolve("@mercuryworkshop/libcurl-transport"));
+const scramjetUtilsPath = dirname(require.resolve("@mercuryworkshop/scramjet-utils"));
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
@@ -57,6 +58,12 @@ fastify.register(fastifyStatic, {
 fastify.register(fastifyStatic, {
 	root: libcurlPath,
 	prefix: "/libcurl/",
+	decorateReply: false,
+});
+
+fastify.register(fastifyStatic, {
+	root: scramjetUtilsPath,
+	prefix: "/scramjet-utils/",
 	decorateReply: false,
 });
 

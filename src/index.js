@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { hostname } from "node:os";
 import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
@@ -66,6 +67,12 @@ fastify.register(fastifyStatic, {
 	prefix: "/scramjet-utils/",
 	decorateReply: false,
 });
+
+const _darkModePrefix = `(function(){const m=window.matchMedia.bind(window);window.matchMedia=function(q){const r=m(q);if(typeof q==='string'&&q.includes('prefers-color-scheme')){return new Proxy(r,{get(t,p){if(p==='matches')return q.includes('dark');const v=t[p];return typeof v==='function'?v.bind(t):v;}})}return r;};})();\n`;
+const _darkInject = _darkModePrefix + readFileSync(resolve(controllerPath, "controller.inject.js"), "utf-8");
+fastify.get("/dark-inject.js", (req, reply) =>
+	reply.type("application/javascript").send(_darkInject)
+);
 
 fastify.setNotFoundHandler((res, reply) => {
 	return reply.code(404).type("text/html").sendFile("404.html");

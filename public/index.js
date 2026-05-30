@@ -63,24 +63,32 @@ async function initController() {
 		config: {
 			prefix: "/~/sj/",
 			scramjetPath: "/scramjet/scramjet.js",
-			injectPath: "/controller/controller.inject.js",
+			injectPath: "/dark-inject.js",
 			wasmPath: "/scramjet/scramjet.wasm",
 		},
 	});
 	await controller.wait();
 
-	const cachePlugin = new $scramjetUtils.HttpCachePlugin();
-	const urlWatcher = new $scramjetUtils.UrlWatcherPlugin((url) => {
-		frameUrl.textContent = url;
-	});
-	const catchEscapedLinks = new $scramjetUtils.CatchEscapedLinksPlugin(
-		(url) =>
-			new URL(`${location.pathname}?goto=${encodeURIComponent(url.href)}`, location.origin)
-	);
+	const plugins = [];
+	if (typeof $scramjetUtils !== "undefined") {
+		plugins.push(new $scramjetUtils.HttpCachePlugin());
+		plugins.push(
+			new $scramjetUtils.UrlWatcherPlugin((url) => {
+				frameUrl.textContent = url;
+			})
+		);
+		plugins.push(
+			new $scramjetUtils.CatchEscapedLinksPlugin(
+				(url) =>
+					new URL(
+						`${location.pathname}?goto=${encodeURIComponent(url.href)}`,
+						location.origin
+					)
+			)
+		);
+	}
 
-	frame = controller.createFrame(frameElement, {
-		plugins: [cachePlugin, urlWatcher, catchEscapedLinks],
-	});
+	frame = controller.createFrame(frameElement, { plugins });
 }
 
 async function navigate(url) {

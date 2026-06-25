@@ -1,155 +1,177 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-		/>
-		<title>Scramjet</title>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+        />
+        <title>Scramjet</title>
 
-		<link rel="shortcut icon" content="favicon.ico" />
-		<script src="https://unpkg.com/highlight.run"></script>
-		<script
-			crossorigin="anonymous"
-			src="https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk"
-		></script>
-		<script
-			crossorigin="anonymous"
-			src="https://cdn.jsdelivr.net/npm/@launchdarkly/observability"
-		></script>
-		<script
-			crossorigin="anonymous"
-			src="https://cdn.jsdelivr.net/npm/@launchdarkly/session-replay"
-		></script>
-		<script>
-			let host = location.host;
-			let ver = host.includes("csb")
-				? "dev-csb"
-				: host.includes("vercel")
-					? "prod-vercel"
-					: "prod-render";
-			H.init("132006", {
-				// Get your project ID from https://app.highlight.io/setup
-				environment: ver,
-				version: ver,
-				networkRecording: {
-					//privacySetting: "none", // very sorry, but i wanna test
-					enabled: true,
-					//recordHeadersAndBody: true,
-					urlBlocklist: [
-						// insert full or partial urls that you don't want to record here
-						// Out of the box, Highlight will not record these URLs (they can be safely removed):
-						"https://www.googleapis.com/identitytoolkit",
-						"https://securetoken.googleapis.com",
-					],
-				},
-			});
-			// import { LDClient } from "https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk";
-			// import Observability, { LDObserve } from "@launchdarkly/observability";
-			// import SessionReplay, { LDRecord } from "@launchdarkly/session-replay";
-			// import { createClient } from "https://cdn.jsdelivr.net/npm/@launchdarkly/js-client-sdk/dist/index.min.js";
-			const context = {
-				kind: "user",
-				key: ver + "scramJet",
-			};
-			const client = LDClient.initialize("69920bd42aae3b09e8e14fed", context, {
-				plugins: [
-					new Observability.default({
-						tracingOrigins: true,
-						networkRecording: { enabled: true, recordHeadersAndBody: true },
-						contextFriendlyName: (context) => {
-							const username = document.getElementById("username");
-							const address = document.getElementById("sj-address");
-							return username.value == "" ? undefined : username.value;
-						},
-					}),
-					new SessionReplay.default({ privacySetting: "none" }),
-				],
-			});
-			console.log(client);
-		</script>
-		<script src="/scramjet/scramjet.js"></script>
-		<script src="/controller/controller.api.js"></script>
-		<script src="/scramjet-utils/scramjet-utils.js"></script>
+        <link rel="shortcut icon" content="favicon.ico" />
+        <script src="https://unpkg.com/highlight.run"></script>
+        <script
+            crossorigin="anonymous"
+            src="https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk"
+        ></script>
+        <script
+            crossorigin="anonymous"
+            src="https://cdn.jsdelivr.net/npm/@launchdarkly/observability"
+        ></script>
+        <script
+            crossorigin="anonymous"
+            src="https://cdn.jsdelivr.net/npm/@launchdarkly/session-replay"
+        ></script>
+        <script>
+            let host = location.host;
+            let ver = host.includes("csb")
+                ? "dev-csb"
+                : host.includes("vercel")
+                  ? "prod-vercel"
+                  : "prod-render";
+            H.init("132006", {
+                // Get your project ID from https://app.highlight.io/setup
+                environment: ver,
+                version: ver,
+                networkRecording: {
+                    //privacySetting: "none", // very sorry, but i wanna test
+                    enabled: true,
+                    //recordHeadersAndBody: true,
+                    urlBlocklist: [
+                        // insert full or partial urls that you don't want to record here
+                        // Out of the box, Highlight will not record these URLs (they can be safely removed):
+                        "https://www.googleapis.com/identitytoolkit",
+                        "https://securetoken.googleapis.com",
+                    ],
+                },
+            });
+            // import { LDClient } from "https://cdn.jsdelivr.net/npm/launchdarkly-js-client-sdk";
+            // import Observability, { LDObserve } from "@launchdarkly/observability";
+            // import SessionReplay, { LDRecord } from "@launchdarkly/session-replay";
+            // import { createClient } from "https://cdn.jsdelivr.net/npm/@launchdarkly/js-client-sdk/dist/index.min.js";
+            const context = {
+                kind: "user",
+                key: ver + "scramJet",
+            };
+            const client = LDClient.initialize(
+                "69920bd42aae3b09e8e14fed",
+                context,
+                {
+                    plugins: [
+                        new Observability.default({
+                            tracingOrigins: true,
+                            networkRecording: {
+                                enabled: true,
+                                recordHeadersAndBody: true,
+                            },
+                            contextFriendlyName: (context) => {
+                                const username =
+                                    document.getElementById("username");
+                                const address =
+                                    document.getElementById("sj-address");
+                                return username.value == ""
+                                    ? undefined
+                                    : username.value;
+                            },
+                        }),
+                        new SessionReplay.default({ privacySetting: "none" }),
+                    ],
+                },
+            );
+            console.log(client);
+        </script>
+        <script src="/scramjet/scramjet.js"></script>
+        <script src="/controller/controller.api.js"></script>
+        <script src="/scramjet-utils/scramjet-utils.js"></script>
 
-		<link rel="stylesheet" href="index.css" />
-		<script src="register-sw.js" defer></script>
-		<script src="search.js" defer></script>
-		<script src="index.js" defer></script>
-		<script>
-			atOptions = {
-				key: "03f8ee6d24b4d313ced21ab9f8438dc1",
-				format: "iframe",
-				height: 60,
-				width: 468,
-				params: {},
-			};
-		</script>
-		<!-- <script src="https://www.highperformanceformat.com/03f8ee6d24b4d313ced21ab9f8438dc1/invoke.js"></script> -->
-		<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-		<script>
-			eruda.init();
-		</script>
-	</head>
+        <link rel="stylesheet" href="index.css" />
+        <script src="register-sw.js" defer></script>
+        <script src="search.js" defer></script>
+        <script src="index.js" defer></script>
+        <script>
+            atOptions = {
+                key: "03f8ee6d24b4d313ced21ab9f8438dc1",
+                format: "iframe",
+                height: 60,
+                width: 468,
+                params: {},
+            };
+        </script>
+        <!-- <script src="https://www.highperformanceformat.com/03f8ee6d24b4d313ced21ab9f8438dc1/invoke.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+        <script>
+            eruda.init();
+        </script>
+    </head>
 
-	<body>
-		<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
-			<img class="logo" src="sj.png" alt="Scramjet" />
-			<h1>Scramjet | MW</h1>
-		</div>
-		<div class="flex-center desc left-margin">
-			<p>
-				Scramjet is an experimental interception based web
-				<rot13>cebkl</rot13> designed to
-				<rot13ns>rinqr vagrearg prafbeuvc</rot13ns>, bypass arbitrary web
-				browser restrictions and innovate web <rot13>cebkl</rot13> technologies.
-			</p>
-		</div>
-
-		<form id="sj-form" class="flex-center">
-			<input
-				id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
-				type="hidden"
-			/>
-			<input
-				id="username"
-				type="text"
-				placeholder="Enter Username... (required!)"
-				aria-label="Used for tracking purposes. Sorry! Want to be safe."
-			/>
-			<input id="sj-address" type="text" placeholder="Search" />
-			<button id="sj-address" type="submit">Open Here</button>
-		</form>
-		<div class="flex-center desc left-margin">
-			<button id="sj-address" onclick="newTab()">Open in New Tab</button>
-		</div>
-		<div class="desc left-margin">
-			<p id="sj-error"></p>
-			<pre id="sj-error-code"></pre>
-		</div>
-		<footer>
-			<div>
-				<a
-					title="The Mercury Workshop GitHub organization"
-					href="https://github.com/MercuryWorkshop"
-					>Mercury Workshop</a
-				>
-				<a
-					title="The example demo app for Scramjet"
-					href="https://github.com/MercuryWorkshop/Scramjet-Demo"
-					>GitHub</a
-				>
-				<a title="License information" href="credits.html">Credits</a>
-			</div>
-			<div>
-				<span>Scramjet &copy; MW 2025</span>
-			</div>
-		</footer>
-	<div id="sj-frame-wrapper">
-		<p id="sj-frame-url"></p>
-		<iframe id="sj-frame"></iframe>
-	</div>
-	</body>
+    <body>
+        <div class="title-part">
+            <div
+                title="Scramjet Logo"
+                class="flex-center logo-wrapper header-center"
+            >
+                <img class="logo" src="sj.png" alt="Scramjet" />
+                <h1>Scramjet | MW</h1>
+            </div>
+        </div>
+        <br /><br />
+        <div class="flex-center desc left-margin">
+            <p>
+                Scramjet is an experimental interception based web
+                <rot13>cebkl</rot13> designed to
+                <rot13ns>rinqr vagrearg prafbeuvc</rot13ns>, bypass arbitrary
+                web browser restrictions and innovate web
+                <rot13>cebkl</rot13> technologies.
+            </p>
+        </div>
+        <br /><br />
+        <div class="gradient">
+            <form id="sj-form" class="flex-center">
+                <input
+                    id="sj-search-engine"
+                    value="https://www.google.com/search?q=%s"
+                    type="hidden"
+                />
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="Enter Username... (required!)"
+                    aria-label="Used for tracking purposes. Sorry! Want to be safe."
+                />
+                <input id="sj-address" type="text" placeholder="Search" />
+                <button id="sj-address" type="submit">Open Here</button>
+            </form>
+            <div class="flex-center desc left-margin">
+                <button id="sj-address" onclick="newTab()">
+                    Open in New Tab
+                </button>
+            </div>
+        </div>
+        <div class="desc left-margin">
+            <p id="sj-error"></p>
+            <pre id="sj-error-code"></pre>
+        </div>
+        <footer>
+            <div>
+                <a
+                    title="The Mercury Workshop GitHub organization"
+                    href="https://github.com/MercuryWorkshop"
+                    >Mercury Workshop</a
+                >
+                <a
+                    title="The example demo app for Scramjet"
+                    href="https://github.com/MercuryWorkshop/Scramjet-Demo"
+                    >GitHub</a
+                >
+                <a title="License information" href="credits.html">Credits</a>
+            </div>
+            <div>
+                <span>Scramjet &copy; MW 2025</span>
+            </div>
+        </footer>
+        <div id="sj-frame-wrapper">
+            <p id="sj-frame-url"></p>
+            <iframe id="sj-frame"></iframe>
+        </div>
+    </body>
 </html>

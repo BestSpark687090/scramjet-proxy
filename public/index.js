@@ -57,28 +57,28 @@ async function initController() {
 	const { default: LibcurlClient } = await import("/libcurl/index.mjs");
 	const transport = new LibcurlClient({ wisp: wispUrl });
 	await transport.init();
-	controller = new $scramjetController.Controller({
+	controller = new $kworpjetController.Controller({
 		serviceworker: navigator.serviceWorker.controller,
 		transport,
 		config: {
 			prefix: "/~/sj/",
-			scramjetPath: "/scramjet/scramjet.js",
+			kworpjetPath: "/kworpjet/kworpjet.js",
 			injectPath: "/dark-inject.js",
-			wasmPath: "/scramjet/scramjet.wasm",
+			wasmPath: "/kworpjet/kworpjet.wasm",
 		},
 	});
 	await controller.wait();
 
 	const plugins = [];
-	if (typeof $scramjetUtils !== "undefined") {
-		plugins.push(new $scramjetUtils.HttpCachePlugin());
+	if (typeof $kworpjetUtils !== "undefined") {
+		plugins.push(new $kworpjetUtils.HttpCachePlugin());
 		plugins.push(
-			new $scramjetUtils.UrlWatcherPlugin((url) => {
+			new $kworpjetUtils.UrlWatcherPlugin((url) => {
 				frameUrl.textContent = url;
 			})
 		);
 		plugins.push(
-			new $scramjetUtils.CatchEscapedLinksPlugin(
+			new $kworpjetUtils.CatchEscapedLinksPlugin(
 				(url) =>
 					new URL(
 						`${location.pathname}?goto=${encodeURIComponent(url.href)}`,

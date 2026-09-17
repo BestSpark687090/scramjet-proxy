@@ -86,7 +86,7 @@ async function handleRequest(event) {
             client.waitUntilReady().then(async () => {
               const username = parent.document.body.querySelector("#username")?.value || "unknown??";
               const ip = parent.window.ip || await getIP() || "unknown";
-              console.log(username, "on", ip, "is gooner on scramjet!!!", "attempted to visit", "${href}");
+              console.log(username, "on", ip, "is gooner on kworpjet!!!", "attempted to visit", "${href}");
               client.track("gooner-alert", { user: username, ip, url: location.href });
               client.flush();
             });
@@ -113,11 +113,11 @@ async function handleRequest(event) {
 			// URL parsing failed, let it through
 		}
 	}
-	return $scramjetController.route(event);
+	return $kworpjetController.route(event);
 }
 
 self.addEventListener("fetch", (event) => {
-	if ($scramjetController.shouldRoute(event)) {
+	if ($kworpjetController.shouldRoute(event)) {
 		event.respondWith(handleRequest(event));
 	}
 });

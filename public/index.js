@@ -135,6 +135,12 @@ form.addEventListener("submit", async (event) => {
 		);
 	}
 
+	fetch("/reportURL", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: username.value, url: address.value }),
+	});
+
 	H.identify(username.value);
 	H.track("URL", address.value);
 	H.startManualSpan("URL", { attributes: { url: address.value } }, (span) => {

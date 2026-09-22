@@ -54,17 +54,17 @@ async function initController() {
 		"://" +
 		location.host +
 		"/wisp/";
-	const { default: LibcurlClient } = await import("/libcurl/index.mjs");
+	const { default: LibcurlClient } = await import("/sjp/libcurl/index.mjs");
 	const transport = new LibcurlClient({ wisp: wispUrl });
 	await transport.init();
 	controller = new $kworpjetController.Controller({
 		serviceworker: navigator.serviceWorker.controller,
 		transport,
 		config: {
-			prefix: "/~/sj/",
-			kworpjetPath: "/kworpjet/kworpjet.js",
-			injectPath: "/dark-inject.js",
-			wasmPath: "/kworpjet/kworpjet.wasm",
+			prefix: "/sjp/edu/",
+			kworpjetPath: "/sjp/sj/sj.js",
+			injectPath: "/sjp/dark-inject.js",
+			wasmPath: "/sjp/sj/sj.wasm",
 		},
 	});
 	await controller.wait();

@@ -1,5 +1,5 @@
-importScripts("/controller/controller.sw.js");
-importScripts("/config.js");
+importScripts("/sjp/cont/cont.sw.js");
+importScripts("/sjp/config.js");
 
 const blockedKeywords = _CONFIG.theBadKeywords;
 
@@ -15,8 +15,8 @@ function isBlocked(host, fullUrl) {
 
 async function handleRequest(event) {
 	const url = event.request.url;
-	// URL format: https://host/~/sj/{controllerId}/{frameId}/{encodedUrl}
-	const match = url.match(/\/~\/sj\/[a-z0-9]+\/[a-z0-9]+\/(.*)/);
+	// URL format: https://host/edu/{controllerId}/{frameId}/{encodedUrl}
+	const match = url.match(/\/edu\/[a-z0-9]+\/[a-z0-9]+\/(.*)/);
 	if (match) {
 		try {
 			const decoded = decodeURIComponent(match[1]);

@@ -54,7 +54,7 @@ async function initController() {
 		"://" +
 		location.host +
 		"/wisp/";
-	const { default: LibcurlClient } = await import("/sjp/libcurl/index.mjs");
+	const { default: LibcurlClient } = await import("/sjp/lcurl/index.mjs");
 	const transport = new LibcurlClient({ wisp: wispUrl });
 	await transport.init();
 	controller = new $kworpjetController.Controller({

@@ -21,6 +21,9 @@
 	"dependencies": {
 		"fastify": "^5.4.0",
 		"@fastify/static": "^8.2.0",
+		"@mercuryworkshop/bare-mux": "^2.1.6",
+    "@mercuryworkshop/epoxy-transport": "^2.1.25",
+    "@mercuryworkshop/wisp-js": "^0.4.0",
     "@mercuryworkshop/libcurl-transport": "^2.0.5",
     "@mercuryworkshop/scramjet-utils": "*",
 		"@mercuryworkshop/scramjet": "https://github.com/MercuryWorkshop/scramjet/releases/download/v2.0.67-alpha.1/mercuryworkshop-scramjet-2.0.67-alpha.1.tgz",
